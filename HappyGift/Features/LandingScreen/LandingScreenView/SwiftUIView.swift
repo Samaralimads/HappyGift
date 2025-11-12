@@ -13,7 +13,7 @@ struct SwiftUIView: View {
             Color.vert
                 .ignoresSafeArea()
             VStack {
-                //
+                // ignored
             }
         }
     }
