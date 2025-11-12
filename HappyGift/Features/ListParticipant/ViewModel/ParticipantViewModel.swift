@@ -14,6 +14,8 @@ class ParticipantViewModel{
     var tel: String = ""
     var email: String = ""
     
+    var isAddParticipant: Bool = false
+    
     var participants : [Participant] = []
     
     
