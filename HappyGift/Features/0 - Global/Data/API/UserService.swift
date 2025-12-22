@@ -46,4 +46,8 @@ final class UserService {
         return try await api.post("/users", body: body)
     }
     
+//    Supprimer compte
+    func deleteAccount(id : UUID) async throws -> Void {
+        try await api.delete("/users/\(id)")
+    }
 }

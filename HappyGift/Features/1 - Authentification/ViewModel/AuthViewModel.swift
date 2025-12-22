@@ -229,6 +229,19 @@ class AuthViewModel {
         print(" Déconnexion réussie")
     }
     
+    // MARK: - Suppression Compte utilisateur
+    
+    @MainActor
+    func deleteAccount() async {
+       guard let userId = currentUser!.id else { return }
+        do {
+            try await userService.deleteAccount(id: userId)
+            logout()
+        } catch {
+            print("Erreur lors de la suppression du compte")
+        }
+    }
+    
     // MARK: - Réinitialisation des erreurs
     /// Supprime le message d’erreur affiché.
     func clearError() {
