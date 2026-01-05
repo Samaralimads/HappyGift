@@ -55,8 +55,17 @@ struct LogoutModal: View {
                             .tag(item)
                     }
                 }
-                .tabViewStyle(.page(indexDisplayMode: .always))
-                .frame(height: 220)
+                .frame(height: 160)
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                
+                HStack(spacing: 8) {
+                    ForEach(LogoutAction.allCases, id : \.self) { item in
+                        Circle()
+                            .fill(action == item ? Color.white : Color.black.opacity(0.4))
+                            .frame(width: 8, height: 8)
+                    }
+                }
+         
                 Text(action == .deconnecter
                      ? "Êtes-vous sûr·e de vouloir vous déconnecter ?"
                      : "Êtes-vous sûr·e de vouloir supprimer votre compte ?")

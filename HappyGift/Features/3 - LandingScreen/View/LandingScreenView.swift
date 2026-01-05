@@ -18,6 +18,7 @@ struct LandingScreenView: View {
     @Environment(UserViewModel.self) var userVM
     
     @State var showLogoutModal: Bool = false
+    @State private var pulse = false
     
     var body: some View {
         
@@ -35,6 +36,7 @@ struct LandingScreenView: View {
                         .foregroundStyle(.white)
                         .padding(.leading, 25)
                         .padding(.bottom, 30)
+                        .transaction { $0.animation = nil }
                     //                        .border(.red)
                     //les backgrounds neige + boite aux lettres + hello Name
                     Spacer()
@@ -79,7 +81,7 @@ struct LandingScreenView: View {
                                             
                                             VStack {
                                                 
-                                                   if let lastLetter = letterVM.lastLetter,
+                                                if let lastLetter = letterVM.lastLetter,
                                                    letterVM.lastLetterIsRead == false {
                                                     
                                                     Button {
@@ -99,19 +101,30 @@ struct LandingScreenView: View {
                                                         .padding(.top, 17)
                                                         .padding(.leading, 11)
                                                         .offset(y: 10)
+                                                        .rotationEffect(Angle(degrees: pulse ? -5 : 5))
                                                 }
                                             }
                                             Spacer()
                                             
                                             Button {
                                                 showLogoutModal = true
-                                            }label:{
+                                            } label: {
                                                 Image(.maisonsRose)
                                                     .resizable()
-                                                    .scaledToFit( )
+                                                    .scaledToFit()
+                                                    .shadow(
+                                                        color: Color.white.opacity(pulse ? 1 : 0.2),
+                                                        radius: pulse ? 15 : 5
+                                                    )
+                          
                                             }
                                             .frame(width: 110, height: 120)
                                             .offset(x: 25, y: 20)
+                                            .onAppear {
+                                                withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
+                                                    pulse.toggle()
+                                                }
+                                            }
                                             
                                         }.frame(width: UIScreen.main.bounds.width / 1.3)
                                         
@@ -147,8 +160,8 @@ struct LandingScreenView: View {
                 
                 _ = await (events, letters)
             }
-//            print("userVM.email: \(userVM.email) ")
-//            print("userVM.name: \(userVM.name) ")
+            //            print("userVM.email: \(userVM.email) ")
+            //            print("userVM.name: \(userVM.name) ")
             
         }
         .sheet(isPresented: $showLogoutModal) {
