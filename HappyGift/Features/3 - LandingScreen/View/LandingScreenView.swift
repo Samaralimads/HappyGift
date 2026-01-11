@@ -9,147 +9,165 @@ import SwiftUI
 
 struct LandingScreenView: View {
     
-    @Environment(LandingScreenViewModel.self)var landingVM
+    @Environment(LandingScreenViewModel.self) var landingVM
     @Environment(NavigationViewModel.self) var navVM
-    @Environment(EventViewModel.self)var eventVM
-    @Environment(SnowfallVM.self)var snowfallVM
-    @Environment(LetterViewModel.self)var letterVM
+    @Environment(EventViewModel.self) var eventVM
+    @Environment(SnowfallVM.self) var snowfallVM
+    @Environment(LetterViewModel.self) var letterVM
     @Environment(AuthViewModel.self) var authVM
     @Environment(UserViewModel.self) var userVM
     
     @State var showLogoutModal: Bool = false
     @State private var pulse = false
+    @State var isFlipped = false
     
     var body: some View {
         
         @Bindable var landingVM = landingVM
         
-        NavigationView {
-            ZStack {
-                Color.vert
-                    .ignoresSafeArea()
-                SnowfallView2()
+
+
+            GeometryReader { geo in
                 
-                VStack(alignment: .leading) {
-                    Text("Hello \(userVM.name)!")
-                        .font(.custom("Syncopate-Bold", size: 25))
-                        .foregroundStyle(.white)
-                        .padding(.leading, 25)
-                        .padding(.bottom, 30)
-                        .transaction { $0.animation = nil }
-                    //                        .border(.red)
-                    //les backgrounds neige + boite aux lettres + hello Name
-                    Spacer()
-                    //                        .frame(height:50)
-                    //font gris
-                    Image(.neigeFontDark)
-                        .resizable()
-                        .scaledToFill()
-                        .allowsHitTesting(false)
-                        .frame(height: UIScreen.main.bounds.height / 2.6)
-                        .border(.red)
-                        .overlay {
-                            //font blanc en OVERLAY
+                // CALCULS ADAPTATIFS
+                let screenRatio = geo.size.width / geo.size.height
+                let isLargeScreen = screenRatio > 0.65
+                
+                // Variables adaptatives selon le type d'écran
+                let hStackPaddingBottom = isLargeScreen ? 0.80 : 0.90
+                
+                ZStack {
+                    Color.vert
+                        .ignoresSafeArea()
+                    SnowfallView2()
+                    
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text("Hello \(userVM.name)!")
+                            .font(.custom("Syncopate-Bold", size: min(geo.size.width * 0.065, 30)))
+                            .foregroundStyle(.white)
+                            .padding(.leading, geo.size.width * 0.06)
+                            .padding(.top, geo.size.width * 0.1)
+                            .padding(.bottom, geo.size.width * 0.1)
+                            .transaction { $0.animation = nil }
+                        
+                        Spacer()
+                        
+                        // Section neige et éléments
+                        ZStack(alignment: .bottom) {
+                            // Font gris
+                            Image(.neigeFontDark)
+                                .resizable()
+                                .scaledToFill()
+                                .allowsHitTesting(false)
+                                .frame(height: geo.size.height * 0.38)
+                                .transaction { $0.animation = nil }
                             
+                            // Font blanc
                             Image(.neigeFont)
                                 .resizable()
                                 .scaledToFill()
                                 .allowsHitTesting(false)
-                                .frame(height: 580)
+                                .frame(height: geo.size.height * 0.40)
                                 .offset(y: 5)
-                            //                                .border(.red)
-                                .overlay {
-                                    // boite au lettre et bonhomme de neige en OVERLAY sur le font neige blanc
-                                    VStack {
-                                        
-                                        HStack{
-                                            //boite aux lettres et bonhomme de neige
-                                            Button {
-                                                //TODO: vers la boite aux lettres
-                                                navVM.path.append(AppRoute.mailbox)
-                                                
-                                            } label: {
-                                                VStack {
-                                                    //boite aux lettres et son ombre
-                                                    withAnimation(.easeInOut(duration: 2)) {
-                                                        Image(letterVM.mailboxData.isEmpty ? .boiteAuxLettresVide : .boiteAuxLettres)
-                                                    }
-                                                    Image(.ombreBoite)
-                                                        .offset(y: -10)
-                                                }
-                                            }
-                                            
-                                            VStack {
-                                                
-                                                if let lastLetter = letterVM.lastLetter,
-                                                   letterVM.lastLetterIsRead == false {
-                                                    
-                                                    Button {
-                                                        navVM.path.append(
-                                                            AppRoute.enveloppeView(letter: lastLetter)
-                                                        )
-                                                    } label: {
-                                                        VStack {
-                                                            Image(.bulleLettre)
-                                                                .padding(.leading)
-                                                            Image(.bonhomme)
-                                                                .padding(.bottom, 30)
-                                                        }
-                                                    }
-                                                }else {
-                                                    Image(.bonhomme)
-                                                        .padding(.top, 17)
-                                                        .padding(.leading, 11)
-                                                        .offset(y: 10)
-                                                        .rotationEffect(Angle(degrees: pulse ? -5 : 5))
-                                                }
-                                            }
-                                            Spacer()
-                                            
-                                            Button {
-                                                showLogoutModal = true
-                                            } label: {
-                                                Image(.maisonsRose)
-                                                    .resizable()
-                                                    .scaledToFit()
-                                                    .shadow(
-                                                        color: Color.white.opacity(pulse ? 1 : 0.2),
-                                                        radius: pulse ? 15 : 5
-                                                    )
-                          
-                                            }
-                                            .frame(width: 110, height: 120)
-                                            .offset(x: 25, y: 20)
-                                            .onAppear {
-                                                withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
-                                                    pulse.toggle()
-                                                }
-                                            }
-                                            
-                                        }.frame(width: UIScreen.main.bounds.width / 1.3)
-                                        
-                                        Spacer()
-                                        
-                                    }.frame(height: UIScreen.main.bounds.height / (letterVM.mailboxData.isEmpty ? 1.16 : 1.1))
+                                .transaction { $0.animation = nil }
+                            
+                            // Contenu sur la neige
+                            HStack(alignment: .bottom, spacing: geo.size.width * 0.03) {
+                                
+                                // Boîte aux lettres
+                                Button {
+                                    navVM.path.append(AppRoute.mailbox)
+                                } label: {
+                                    VStack(spacing: -8) {
+                                        Image(letterVM.mailboxData.isEmpty ? .boiteAuxLettresVide : .boiteAuxLettres)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: geo.size.width * 0.25, height: geo.size.width * 0.25)
+                                        Image(.ombreBoite)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: geo.size.width * 0.25)
+                                    }
+                                    .offset(y : geo.size.width * 0.02)
                                 }
+                                
+                                // Bonhomme de neige
+                                if let lastLetter = letterVM.lastLetter,
+                                   letterVM.lastLetterIsRead == false {
+                                    Button {
+                                        navVM.path.append(
+                                            AppRoute.enveloppeView(letter: lastLetter)
+                                        )
+                                    } label: {
+                                        VStack(spacing: -5) {
+                                            Image(.bulleLettre)
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(width: geo.size.width * 0.18)
+                                            Image(.bonhomme)
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(width: geo.size.width * 0.18)
+                                        }
+                                    }
+                                    .offset(y : geo.size.width * 0.05)
+                                    
+                                } else {
+                                    Image(.bonhomme)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: geo.size.width * 0.20)
+                                        .rotationEffect(Angle(degrees: pulse ? -5 : 5))
+                                        .offset(y :  geo.size.width * 0.05)
+
+                                }
+                                
+                                Spacer()
+                                
+                                // Maison rose deconnexion
+                                Button {
+                                    showLogoutModal = true
+                                } label: {
+                                    Image(.maisonsRose)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .shadow(
+                                            color: Color.white.opacity(pulse ? 1 : 0.2),
+                                            radius: pulse ? 15 : 5
+                                        )
+    
+                                }
+                                .frame(width: geo.size.width * 0.28, height: geo.size.width * 0.3)
+                                .offset(x: geo.size.width * 0.05, y: geo.size.height * 0.02)
+                                .onAppear {
+                                    withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
+                                        pulse.toggle()
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, geo.size.width * 0.06)
+                            .padding(.bottom, geo.size.width * hStackPaddingBottom)
                         }
-                }
-                
-                VStack {
-                    Spacer()
-                    Countdown()
-                        .padding(.bottom)
-                        .onAppear {
-                            landingVM.startTimer()
-                        }
+                    }
                     
-                    ButtonsLandingScreen()
+                    //COUNTDOWN
+                    VStack(spacing: 0) {
+                        Spacer()
+                        
+                        Countdown(geo : geo)
+                            .padding(.bottom, 8)
+                            .onAppear {
+                                landingVM.startTimer()
+                            }
+                        
+                        //BOUTONS LANDING SCREEN
+                        ButtonsLandingScreen(geo : geo)
+                        
+                    }
+                    .padding(.bottom, 10)
                 }
-                //.padding(.bottom)
-                
-                
             }
-        }
+        .navigationViewStyle(StackNavigationViewStyle())
         .onAppear {
             Task {
                 navVM.isLoading = true
@@ -160,45 +178,12 @@ struct LandingScreenView: View {
                 
                 _ = await (events, letters)
             }
-            //            print("userVM.email: \(userVM.email) ")
-            //            print("userVM.name: \(userVM.name) ")
-            
         }
         .sheet(isPresented: $showLogoutModal) {
             LogoutModal(showLogoutModal: $showLogoutModal)
         }
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarHidden(true)
-    }
-}
-
-struct SnowfallView2: View {
-    @Environment(SnowfallVM.self)var snowfallVM
-    
-    var size: CGFloat
-    
-    init(size: CGFloat = 200, snowCount: Int = 80) {
-        self.size = size
-    }
-    
-    var body: some View {
-        Canvas { context, _ in
-            for flake in snowfallVM.snowflakes {
-                let rect = CGRect(
-                    x: flake.x - flake.size,
-                    y: flake.y - flake.size,
-                    width: flake.size * 2,
-                    height: flake.size * 2
-                )
-                
-                context.fill(
-                    Path(ellipseIn: rect),
-                    with: .color(.gris)
-                )
-            }
-        }
-        .ignoresSafeArea()
-        .allowsHitTesting(false)
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
@@ -215,11 +200,8 @@ struct SnowfallView2: View {
             .environment(SnowfallVM(
                 numberOfSnowflakes: 120,
                 area: .rect,
-                width: UIScreen.main.bounds.width,
-                height: 400
+                height: 490
             ))
             .environment(userVM)
     }
-    
 }
-

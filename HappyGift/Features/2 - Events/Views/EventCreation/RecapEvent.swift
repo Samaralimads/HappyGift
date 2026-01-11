@@ -8,81 +8,115 @@
 import SwiftUI
 
 struct RecapEvent: View {
-    
+
     @Environment(EventViewModel.self) private var eventVM
     @Environment(NavigationViewModel.self) private var navigationVM
     @Environment(UserViewModel.self) private var userVM
+
     @State var showAlert: Bool = false
     @State var showAlertParticipant: Bool = false
-        
+    @State var showAlertMinParticipants: Bool = false
+
     var body: some View {
-        
-        ZStack {
-            Color.beige.edgesIgnoringSafeArea(.all)
+        GeometryReader { geo in
+            let w = geo.size.width
+            let h = geo.size.height
+
+            // ✅ même logique que LandingScreen
+            let screenRatio = w / h
+            let isLargeScreen = screenRatio > 0.65
+
+            // Réglages simples iPad vs iPhone
+            let topCardY = -h * (isLargeScreen ? 0.22 : 0.28)
+
+            let lieuY = h * (isLargeScreen ? 0.05 : 0.03)
+            let dateX = w * (isLargeScreen ? 0.05 : 0.08)
+            let dateY = h * (isLargeScreen ? 0.05 : 0.01)
+
+            // Cartes du bas : sur iPad on les remonte un peu + on réduit un peu l’échelle
+            let bottomCardsScale: CGFloat = isLargeScreen ? 0.88 : 1.0
+            let participantsX = w * (isLargeScreen ? 0.4 : 0.38)
+            let participantsY = h * (isLargeScreen ? 0.35 : 0.28)
+
+            let budgetX = -w * (isLargeScreen ? 0.24 : 0.28)
+            let budgetY = h * (isLargeScreen ? 0.3 : 0.28)
+
             ZStack {
-                
+                Color.beige.ignoresSafeArea()
+
                 ZStack {
-                    ZStack {
-                        CarreNomDescriptionEvent()
-                        .offset(x: 0, y: -220)
+                    // Carte nom + description (haut)
+                    CarreNomDescriptionEvent()
+                        .offset(y: topCardY)
+
+                    // Lieu + date
                     HStack {
                         CarreRoseLieuEvent()
+                            .offset(y: lieuY)
+
                         CarreRougeDateEvent()
-                            .rotationEffect(Angle(degrees: -12))
-                            .padding(.top, 20)
-                            .offset(x:30)
+                            .rotationEffect(.degrees(-12))
+                            .padding(.top, h * 0.02)
+                            .offset(x: dateX, y: dateY)
                     }
-                    
-                        CarreListeParticipants()
-                            .offset(x: 160, y: 220)
-                            .rotationEffect(Angle(degrees: 15))
-                    
-                        CarreVertBudgetPlus()
-                            .rotationEffect(Angle(degrees: -15))
-                            .offset(x: -110, y:  190)
-                }
-            }
-                VStack {
-                    Spacer()
-                    
-                    Button {
-                        Task {
-                            //  Vérifs AVANT le loader
-                            if !eventVM.participants.contains(where: {
-                                $0.email.lowercased() == userVM.email.lowercased()
-                            }) {
-                                showAlertParticipant = true
-                                return
-                            }
 
-                            if !eventVM.isValidFormEvent2 {
-                                showAlert = true
-                                return
-                            }
+                    // ✅ Cartes du bas (scale iPad)
+                    CarreListeParticipants()
+                        .scaleEffect(bottomCardsScale)
+                        .offset(x: participantsX, y: participantsY)
+                        .rotationEffect(.degrees(15))
 
-                            //  LOADER
-                            navigationVM.isLoading = true
-//                            navigationVM.start()
-                            defer {
-//                                navigationVM.stop()
-                                navigationVM.isLoading = false
-                            }
+                    CarreVertBudgetPlus()
+                        .scaleEffect(bottomCardsScale)
+                        .rotationEffect(.degrees(-15))
+                        .offset(x: budgetX, y: budgetY)
 
-                            // Réseau
-                            await eventVM.createEvent()
-                            eventVM.hasJustCreatedEvent = true
+                    // Bouton en bas
+                    VStack {
+                        Spacer()
 
-                            //  Navigation
-                            if let event = eventVM.currentEvent {
-                                navigationVM.path.append(
-                                    AppRoute.tirageView(event: event, showbackButton: false)
-                                )
+                        Button {
+                            Task {
+                                if !eventVM.participants.contains(where: {
+                                    $0.email.lowercased() == userVM.email.lowercased()
+                                }) {
+                                    showAlertParticipant = true
+                                    return
+                                }
+
+                                if eventVM.participants.count < 3 {
+                                    showAlertMinParticipants = true
+                                    return
+                                }
+
+                                if !eventVM.isValidFormEvent2 {
+                                    showAlert = true
+                                    return
+                                }
+
+                                navigationVM.isLoading = true
+                                defer { navigationVM.isLoading = false }
+
+                                await eventVM.createEvent()
+                                eventVM.hasJustCreatedEvent = true
+
+                                if let event = eventVM.currentEvent {
+                                    navigationVM.path.append(
+                                        AppRoute.tirageView(event: event, showbackButton: false)
+                                    )
+                                }
                             }
+                        } label: {
+                            ButtonText(
+                                text: "Lancer le tirage",
+                                width: w * (isLargeScreen ? 0.38 : 0.50)
+                            )
                         }
-                    } label: {
-                        ButtonText(text: "Lancer le tirage", width: 190)
+                        .disabled(navigationVM.isLoading)
+
+                        // ⚠️ ne jamais mettre -16 : ça peut couper
+//                        .padding(.bottom, max(geo.safeAreaInsets.bottom, 12) + 12)
                     }
-                    .disabled(navigationVM.isLoading)
                 }
             }
         }
@@ -90,6 +124,11 @@ struct RecapEvent: View {
             Button("OK", role: .cancel) {}
         } message: {
             Text("Vous n'avez pas défini de budget ou ajouté de participants")
+        }
+        .alert("Tirage impossible", isPresented: $showAlertMinParticipants) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Il vous faut au minimum 3 participants pour lancer un tirage")
         }
         .alert("Tirage impossible", isPresented: $showAlertParticipant) {
             Button("OK", role: .cancel) {}

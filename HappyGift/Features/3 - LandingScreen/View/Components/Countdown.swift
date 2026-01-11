@@ -5,139 +5,99 @@
 //  Created by Apprenant125 on 12/11/2025.
 //
 
+
 import SwiftUI
 
-struct Countdown : View {
-    @Environment(LandingScreenViewModel.self)var landingVM
+struct Countdown: View {
+    @Environment(LandingScreenViewModel.self) var landingVM
+    
+    var geo : GeometryProxy
 
     var body: some View {
-        VStack {
-            //les élements au dessus de la neige
-            HStack {
-                Text("Prochain évènement")
-                    .font(.system(size: 16, weight: .bold))
-                    .padding(.leading, 30)
-                    .padding(.bottom)
-                Spacer()
-            }
+      
+            VStack {
+                // Titre
+                HStack {
+                    Text("Prochain évènement")
+                        .font(.system(size: min(geo.size.width * 0.042, 18), weight: .bold))
+                        .padding(.leading, geo.size.width * 0.08)
+                        .padding(.bottom, geo.size.height * 0.02)
+                    Spacer()
+                }
 
-            ZStack {
-                HStack (spacing: 10) {
+                // Compteur
+                HStack(spacing: geo.size.width * 0.025) {
+                    // Jours
                     VStack {
                         Text("jours")
-                            .font(.custom("Syncopate-Bold", size: 9))
+                            .font(.custom("Syncopate-Bold", size: min(geo.size.width * 0.024, 9)))
                             .padding(.bottom, 5)
                         RoundedRectangle(cornerRadius: 10)
-                            .frame(width: 60, height: 60)
+                            .frame(width: geo.size.width * 0.15, height: geo.size.width * 0.15)
                             .foregroundStyle(.white)
                             .overlay {
                                 Text(landingVM.formattedBackupTimeLeft.days)
-                                    .font(.custom("Syncopate-Bold", size: 24))
+                                    .font(.custom("Syncopate-Bold", size: min(geo.size.width * 0.06, 24)))
                                     .foregroundStyle(.vertDark)
                                     .contentTransition(.numericText(countsDown: true))
                             }
                     }
 
-                    
+                    // Séparateur
                     VStack {
                         Circle()
-                            .frame(width: 10)
+                            .frame(width: geo.size.width * 0.025)
                             .foregroundStyle(.grisDark)
                         
                         Circle()
-                            .frame(width: 10)
+                            .frame(width: geo.size.width * 0.025)
                             .foregroundStyle(.grisDark)
                     }
+                    
+                    // Heures
                     VStack {
                         Text("heures")
-                            .font(.custom("Syncopate-Bold", size: 9))
+                            .font(.custom("Syncopate-Bold", size: min(geo.size.width * 0.024, 9)))
                             .padding(.bottom, 5)
                         RoundedRectangle(cornerRadius: 10)
-                            .frame(width: 60, height: 60)
+                            .frame(width: geo.size.width * 0.15, height: geo.size.width * 0.15)
                             .foregroundStyle(.white)
                             .overlay {
                                 Text(landingVM.formattedBackupTimeLeft.hours)
-                                    .font(.custom("Syncopate-Bold", size: 24))
+                                    .font(.custom("Syncopate-Bold", size: min(geo.size.width * 0.06, 24)))
                                     .foregroundStyle(.vertDark)
                                     .contentTransition(.numericText(countsDown: true))
-
                             }
-
                     }
 
-
-                    
+                    // Séparateur
                     VStack {
                         Circle()
-                            .frame(width: 10)
+                            .frame(width: geo.size.width * 0.025)
                             .foregroundStyle(.grisDark)
-
                         
                         Circle()
-                            .frame(width: 10)
+                            .frame(width: geo.size.width * 0.025)
                             .foregroundStyle(.grisDark)
                     }
 
+                    // Minutes
                     VStack {
                         Text("minutes")
-                            .font(.custom("Syncopate-Bold", size: 9))
+                            .font(.custom("Syncopate-Bold", size: min(geo.size.width * 0.024, 9)))
                             .padding(.bottom, 5)
                         RoundedRectangle(cornerRadius: 10)
-                            .frame(width: 60, height: 60)
+                            .frame(width: geo.size.width * 0.15, height: geo.size.width * 0.15)
                             .foregroundStyle(.white)
                             .overlay {
                                 Text(landingVM.formattedBackupTimeLeft.minutes)
-                                    .font(.custom("Syncopate-Bold", size: 24))
+                                    .font(.custom("Syncopate-Bold", size: min(geo.size.width * 0.06, 24)))
                                     .foregroundStyle(.vertDark)
                                     .contentTransition(.numericText(countsDown: true))
-
                             }
-
                     }
-                    
-                    
-//                    VStack {
-//                        Circle()
-//                            .frame(width: 10)
-//                            .foregroundStyle(.grisDark)
-//
-//                        
-//                        Circle()
-//                            .frame(width: 10)
-//                            .foregroundStyle(.grisDark)
-//                    }
-                    
-//                    VStack {
-//                        Text("secondes")
-//                            .font(.custom("Syncopate-Bold", size: 9))
-//                        RoundedRectangle(cornerRadius: 10)
-//                            .frame(width: 60, height: 60)
-//                            .foregroundStyle(.white)
-//                            .overlay {
-//                                Text(landingVM.formattedBackupTimeLeft.seconds)
-//                                    .font(.custom("Syncopate-Bold", size: 24))
-//                                    .foregroundStyle(.vertDark)
-//                                    .contentTransition(.numericText(countsDown: true))
-//
-//                            }
-//
-//                    }
                 }
-            }
-        }
-        .onAppear {
-            landingVM.startTimer()
-            landingVM.updateTimeLeft()
         }
     }
 }
-
-#Preview {
-    ZStack {
-        Color.gris
-        Countdown()
-            .environment(LandingScreenViewModel(eventVM: EventViewModel()))
-    }
-}
-
 

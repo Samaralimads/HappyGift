@@ -21,11 +21,10 @@ struct EventJoinView: View {
         
         @Bindable var eventVM = eventVM
         
-        
-        ZStack{
-            Color.beige.ignoresSafeArea()
+        GeometryReader { geo in
             
-            ScrollView{
+            ZStack{
+                Color.beige.ignoresSafeArea()
                 
                 VStack{
                     
@@ -34,11 +33,10 @@ struct EventJoinView: View {
                         .padding()
                     
                     Spacer()
-                        .frame(height : 50)
                     ZStack{
                         Image("bonnetNoel")
                             .resizable()
-                            .frame(width: 214, height: 380)
+                            .frame(width: geo.size.width * 0.5, height: geo.size.height * 0.5)
                         SnowfallView(size: 450)
                     }
                     
@@ -60,7 +58,7 @@ struct EventJoinView: View {
                     .padding()
                     
                     Spacer()
-                        .frame(height: 40)
+
                     
                     ButtonParticipantCellView(title: "Rejoindre", function: {
                         if !eventVM.codeEvent.isEmpty{
@@ -74,12 +72,12 @@ struct EventJoinView: View {
                             showAlertEmptyCode = true
                         }
                     }, size: 274)
+                    
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            
-    
         }
+        .navigationBarTitleDisplayMode(.inline)
+
         .sheet(isPresented: $eventVM.showValidationJoinModal) {
             EventValidJoinCellView()
                 .presentationDetents([.fraction(0.5)])

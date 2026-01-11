@@ -48,7 +48,7 @@ struct SucessEventModal: View {
                 }
             }
         }
-        .presentationDetents([.medium])
+        .presentationDetents([.fraction(0.7)])
     }
 }
 
