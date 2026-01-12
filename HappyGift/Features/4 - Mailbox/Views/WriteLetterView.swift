@@ -19,108 +19,145 @@ public struct WriteLetterView: View {
         
         @Bindable var letterVM = letterVM
         
-        ZStack {
-            Color(.rose)
-                .ignoresSafeArea()
+//        iPhonePro
+//        Largeur : 393 pt
+//        Hauteur : 852 pt
+        
+        //iPad
+//        Largeur : 834 pt
+//        Hauteur : 1194 pt
+        
+        GeometryReader { geo in
             
-            VStack(alignment: .center) {
-                Text("Ma lettre")
-                    .font(.custom("Syncopate-Bold", size: 30))
-                    .padding(.top, 20)
-                    .foregroundColor(.beige)
-                
-                // fond papier à lettre
-                ZStack(alignment: .topLeading) {
-                    ZStack{
-                        Image("letter")
-                            .resizable()
-                            .scaledToFit()
-                            .cornerRadius(10)
-                            .shadow( color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .ignoresSafeArea(edges: .horizontal)
-                        Rectangle()
-                            .foregroundColor(.beige)
-                            .frame(width: 305, height: 510)
-                            .shadow( color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
-                    }
+            let w = geo.size.width
+            let h = geo.size.height
+
+            // ✅ même logique que LandingScreen / RecapEvent
+            let screenRatio = w / h
+            let isLargeScreen = screenRatio > 0.65
+
+            // ✅ Reprise des bons réglages (mêmes ratios que RecapEvent)
+            
+            let PaperWidth = w * (isLargeScreen ? 3 : 1)
+            let PaperHeight = h * (isLargeScreen ? 0.79 : 1)
+            let RectBeigeWidth = w * (isLargeScreen ? 0.9 : 0.8)
+            let RectBeigeHeight = h * (isLargeScreen ? 0.7 : 0.71)
+            
+            let TextEditorHeight = h * (isLargeScreen ? 0.45 : 0.45)
+            let SignatureHeight = h * (isLargeScreen ? 0.05 : 0.05)
+            let SignatureWidth = w * (isLargeScreen ? 0.28 : 0.28)
+            
+            let paddingLetterHorizontal = w * (isLargeScreen ? 0.05 : 0.1)
+            let paddingLetterVertical = w * (isLargeScreen ? 0.20 : 0.25)
+            
+            let maxHeightPaper = h * (isLargeScreen ? 0.8 : 0.8)
+            
+            NavigationView {
+                ZStack {
+                    Color(.rose)
+                        .ignoresSafeArea()
                     
-                    VStack(alignment: .leading, spacing: 15) {
-                        Text("Cher père Noël,")
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundColor(.black)
-                            .padding(.leading, 0.8)
+                    VStack(alignment: .center) {
+                        Text("Ma lettre")
+                            .font(.custom("Syncopate-Bold", size: 30))
+                            .padding(.top, 20)
+                            .foregroundColor(.beige)
                         
-                        // message
+                        // fond papier à lettre
                         ZStack(alignment: .topLeading) {
-                            if letterVM.userMessage.isEmpty {
-                                Text("Écris ton message ici ...")
-                                    .foregroundColor(.black)
-                                    .font(.system(size: 18))
-                                    .padding(.top, 8)
-                                    .padding(.leading, 5)
+                            ZStack{
+                                Image("letter")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .cornerRadius(10)
+                                    .shadow( color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
+                                    .frame(maxWidth: PaperWidth, maxHeight: PaperHeight)
+                                    .ignoresSafeArea(edges: .horizontal)
+                                Rectangle()
+                                    .foregroundColor(.beige)
+                                    .frame(width: RectBeigeWidth, height: RectBeigeHeight)
+                                    .shadow( color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
                             }
-                            TextEditor(text: $letterVM.userMessage)
-                                .font(.system(size: 18))
-                                .foregroundColor(.black)
-                                .scrollContentBackground(.hidden)
-                                .background(Color.clear)
-                                .lineSpacing(5)
-                                .frame(height: 350)
                             
-                        }
-                        // Signature
-                        HStack{
-                            Spacer()
-                            ZStack(alignment: .trailing) {
-                                if letterVM.signature.isEmpty {
-                                    Text("Prénom")
-                                        .foregroundColor(.black)
-                                        .font(.system(size: 18))
-                                        .padding(.bottom, 5)
-                                        .padding(.trailing, 2.5)
-                                }
-                                TextEditor(text: $letterVM.signature)
-                                    .font(.system(size: 18, weight: .regular))
+                            VStack(alignment: .leading, spacing: 15) {
+                                Text("Cher père Noël,")
+                                    .font(.system(size: 18, weight: .bold))
                                     .foregroundColor(.black)
-                                    .scrollContentBackground(.hidden)
-                                    .background(Color.clear)
-                                    .multilineTextAlignment(.trailing)
-                                    .frame(width: 160, height: 45)
+                                    .padding(.leading, 0.8)
+                                
+                                // message
+                                ZStack(alignment: .topLeading) {
+                                    if letterVM.userMessage.isEmpty {
+                                        Text("Écris ton message ici ...")
+                                            .foregroundColor(.black)
+                                            .font(.system(size: 18))
+                                            .padding(.top, 8)
+                                            .padding(.leading, 5)
+                                    }
+                                    TextEditor(text: $letterVM.userMessage)
+                                        .font(.system(size: 18))
+                                        .foregroundColor(.black)
+                                        .scrollContentBackground(.hidden)
+                                        .background(Color.clear)
+                                        .lineSpacing(5)
+                                        .frame(height: TextEditorHeight)
+                                }
+                                // Signature
+                                HStack{
+                                    Spacer()
+                                    ZStack(alignment: .trailing) {
+                                        if letterVM.signature.isEmpty {
+                                            Text("Prénom")
+                                                .foregroundColor(.black)
+                                                .font(.system(size: 18))
+                                                .padding(.bottom, 5)
+                                                .padding(.trailing, 2.5)
+                                        }
+                                        TextEditor(text: $letterVM.signature)
+                                            .font(.system(size: 18, weight: .regular))
+                                            .foregroundColor(.black)
+                                            .scrollContentBackground(.hidden)
+                                            .background(Color.clear)
+                                            .multilineTextAlignment(.trailing)
+                                            .frame(width: SignatureWidth, height: SignatureHeight)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, paddingLetterHorizontal)
+                            .padding(.vertical, paddingLetterVertical)
+                        }
+                        .frame(maxWidth: 600, maxHeight: maxHeightPaper)
+                        .padding(.horizontal)
+                        
+                        Button {
+                            Task {
+                                navigationVM.isLoading = true
+                                defer {navigationVM.isLoading = false}
+                                guard let eventId = event.id else { return }
+                                await letterVM.sendLetter(eventId: eventId)
+                            }
+                            
+                            showModal = true
+                            
+                        } label: {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 30)
+                                    .fill(Color.black)
+                                    .frame(width: 250, height: 60)
+                                Text("Envoyer ma lettre")
+                                    .font(.system(size: 18, weight: .bold))
+                                    .foregroundColor(.beige)
                             }
                         }
+                        
+                        //Modale
+                        .sheet(isPresented: $showModal){
+                            SucessLetterModal(showModal: $showModal)
+                        }
                     }
-                    .padding(.horizontal, 65)
-                    .padding(.vertical, 100)
-                }
-                .frame(maxWidth: 600, maxHeight: 800)
-                .padding(.horizontal)
-                
-                Button {
-                    Task {
-                        navigationVM.isLoading = true
-                        defer {navigationVM.isLoading = false}
-                        guard let eventId = event.id else { return }
-                        await letterVM.sendLetter(eventId: eventId)
-                    }
-                    
-                    showModal = true
-                    
-                } label: {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 30)
-                            .fill(Color.black)
-                            .frame(width: 250, height: 60)
-                        Text("Envoyer ma lettre")
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundColor(.beige)
-                    }
-                }
-                //Modale
-                .sheet(isPresented: $showModal){
-                    SucessLetterModal(showModal: $showModal)
                 }
             }
+            .navigationBarTitleDisplayMode(.inline)
         }
         .onTapGesture {
             self.hideKeyboard()

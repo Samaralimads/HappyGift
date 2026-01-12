@@ -81,7 +81,7 @@ struct DetailEvent: View {
                         } label: {
                             ButtonText(
                                 text: "Ecrire à mon pere noel",
-                                width: w * (isLargeScreen ? 0.48 : 0.70)
+                                width: w * (isLargeScreen ? 0.6 : 0.70)
                             )
                         }
 

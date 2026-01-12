@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct EventJoinView: View {
-    //    @Binding var eventListVM : EventListViewModel
     @Environment(EventViewModel.self) private var eventVM
     @Environment(UserViewModel.self) private var userVM
     @Environment(SnowfallVM.self) private var snowfallVM
@@ -18,66 +17,65 @@ struct EventJoinView: View {
     @State var showAlertEmptyCode: Bool = false
     
     var body: some View {
-        
         @Bindable var eventVM = eventVM
         
-        GeometryReader { geo in
+        ZStack {
+            Color.beige.ignoresSafeArea()
             
-            ZStack{
-                Color.beige.ignoresSafeArea()
+            VStack {
                 
-                VStack{
+                // Image avec neige
+                ZStack {
+                    Image("bonnetNoel")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxWidth: 250, maxHeight: 300)
                     
-                    Text("Mon événement ")
-                        .font(.custom("Syncopate-Bold", size: 20))
-                        .padding()
-                    
-                    Spacer()
-                    ZStack{
-                        Image("bonnetNoel")
-                            .resizable()
-                            .frame(width: geo.size.width * 0.5, height: geo.size.height * 0.5)
-                        SnowfallView(size: 450)
-                    }
-                    
-                    VStack(spacing: 12){
-                        
-                        Text("Code santa")
-                            .font(.system( size: 16, weight: .bold))
-                            .frame(width: 120)
-                            .multilineTextAlignment(.center)
-                        
-                        TextField("", text: $eventVM.codeEvent)
-                            .padding(.horizontal, 10)
-                            .frame(width: 140, height: 40)
-                            .background(.white.opacity(0.8))
-                            .cornerRadius(10)
-                            .font(.custom("Syncopate-Bold", size: 20))
-                            .multilineTextAlignment(.center)
-                    }
-                    .padding()
-                    
-                    Spacer()
-
-                    
-                    ButtonParticipantCellView(title: "Rejoindre", function: {
-                        if !eventVM.codeEvent.isEmpty{
-                            Task {
-                                navigationVM.isLoading = true
-                                defer {navigationVM.isLoading = false}
-                                await eventVM.joinEvent(email: userVM.email, code: eventVM.codeEvent)
-                                eventVM.codeEvent = ""
-                            }
-                        }else{
-                            showAlertEmptyCode = true
-                        }
-                    }, size: 274)
-                    
+                    SnowfallView()
                 }
+                
+                // TextField avec label
+                VStack(spacing: 12) {
+                    Text("Code santa")
+                        .font(.system(size: 16, weight: .bold))
+                    
+                    TextField("", text: $eventVM.codeEvent)
+                        .padding(.horizontal, 10)
+                        .frame(width: 140, height: 40)
+                        .background(.white.opacity(0.8))
+                        .cornerRadius(10)
+                        .font(.custom("Syncopate-Bold", size: 20))
+                        .multilineTextAlignment(.center)
+                }
+                
+                Spacer()
+                
+                // Bouton
+                ButtonParticipantCellView(title: "Rejoindre", function: {
+                    if !eventVM.codeEvent.isEmpty {
+                        Task {
+                            navigationVM.isLoading = true
+                            defer { navigationVM.isLoading = false }
+                            await eventVM.joinEvent(email: userVM.email, code: eventVM.codeEvent)
+                            eventVM.codeEvent = ""
+                        }
+                    } else {
+                        showAlertEmptyCode = true
+                    }
+                }, size: 274)
+                .padding(.bottom, 16)
             }
+            .padding(.horizontal, 20)
+            .padding(.top, 20)
         }
         .navigationBarTitleDisplayMode(.inline)
-
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text("Mon événement")
+                    .font(.custom("Syncopate-Bold", size: 20))
+                    .foregroundStyle(.black)
+            }
+        }
         .sheet(isPresented: $eventVM.showValidationJoinModal) {
             EventValidJoinCellView()
                 .presentationDetents([.fraction(0.5)])

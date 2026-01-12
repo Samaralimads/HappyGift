@@ -36,6 +36,7 @@ struct LandingScreenView: View {
                 // Variables adaptatives selon le type d'écran
                 let hStackPaddingBottom = isLargeScreen ? 0.80 : 0.90
                 
+                
                 ZStack {
                     Color.vert
                         .ignoresSafeArea()
@@ -82,13 +83,13 @@ struct LandingScreenView: View {
                                         Image(letterVM.mailboxData.isEmpty ? .boiteAuxLettresVide : .boiteAuxLettres)
                                             .resizable()
                                             .scaledToFit()
-                                            .frame(width: geo.size.width * 0.25, height: geo.size.width * 0.25)
+                                            .frame(width: geo.size.width * 0.28, height: geo.size.width * 0.28)
                                         Image(.ombreBoite)
                                             .resizable()
                                             .scaledToFit()
                                             .frame(width: geo.size.width * 0.25)
                                     }
-                                    .offset(y : geo.size.width * 0.02)
+                                    .offset(y :  geo.size.width * 0.040)
                                 }
                                 
                                 // Bonhomme de neige
@@ -107,7 +108,7 @@ struct LandingScreenView: View {
                                             Image(.bonhomme)
                                                 .resizable()
                                                 .scaledToFit()
-                                                .frame(width: geo.size.width * 0.18)
+                                                .frame(width: geo.size.width * 0.20)
                                         }
                                     }
                                     .offset(y : geo.size.width * 0.05)
