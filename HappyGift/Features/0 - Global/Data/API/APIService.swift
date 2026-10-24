@@ -71,13 +71,17 @@ final class APIService {
     }
     
     //METHODE DELETE
-    func delete(_ endpoint: String) async throws {
+    func delete(_ endpoint: String, token: String? = nil) async throws {
         guard let url = URL(string : baseURL + endpoint) else {
             throw URLError(.badURL)
         }
         var request = URLRequest(url: url)
         request.httpMethod = "DELETE"
-        
+
+        if let token = token {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+
         let (_, response) = try await URLSession.shared.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse,

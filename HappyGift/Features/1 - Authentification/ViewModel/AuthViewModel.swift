@@ -233,9 +233,8 @@ class AuthViewModel {
     
     @MainActor
     func deleteAccount() async {
-       guard let userId = currentUser!.id else { return }
         do {
-            try await userService.deleteAccount(id: userId)
+            try await userService.deleteAccount()
             logout()
         } catch {
             print("Erreur lors de la suppression du compte")

@@ -47,7 +47,11 @@ final class UserService {
     }
     
 //    Supprimer compte
-    func deleteAccount(id : UUID) async throws -> Void {
-        try await api.delete("/users/\(id)")
+    func deleteAccount() async throws -> Void {
+        guard let token = UserDefaults.standard.string(forKey: "token") else {
+            print("Aucun token trouvé dans UserDefaults")
+            throw URLError(.userAuthenticationRequired)
+        }
+        try await api.delete("/users/me", token: token)
     }
 }
