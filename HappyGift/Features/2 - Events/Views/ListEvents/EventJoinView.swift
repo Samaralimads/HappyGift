@@ -19,54 +19,57 @@ struct EventJoinView: View {
     var body: some View {
         @Bindable var eventVM = eventVM
         
+        
         ZStack {
             Color.beige.ignoresSafeArea()
             
-            VStack {
-                
-                // Image avec neige
-                ZStack {
-                    Image("bonnetNoel")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxWidth: 250, maxHeight: 300)
+            ScrollView{
+                VStack {
                     
-                    SnowfallView()
-                }
-                
-                // TextField avec label
-                VStack(spacing: 12) {
-                    Text("Code santa")
-                        .font(.system(size: 16, weight: .bold))
-                    
-                    TextField("", text: $eventVM.codeEvent)
-                        .padding(.horizontal, 10)
-                        .frame(width: 140, height: 40)
-                        .background(.white.opacity(0.8))
-                        .cornerRadius(10)
-                        .font(.custom("Syncopate-Bold", size: 20))
-                        .multilineTextAlignment(.center)
-                }
-                
-                Spacer()
-                
-                // Bouton
-                ButtonParticipantCellView(title: "Rejoindre", function: {
-                    if !eventVM.codeEvent.isEmpty {
-                        Task {
-                            navigationVM.isLoading = true
-                            defer { navigationVM.isLoading = false }
-                            await eventVM.joinEvent(email: userVM.email, code: eventVM.codeEvent)
-                            eventVM.codeEvent = ""
-                        }
-                    } else {
-                        showAlertEmptyCode = true
+                    // Image avec neige
+                    ZStack {
+                        Image("bonnetNoel")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxWidth: 250, maxHeight: 300)
+                        
+                        SnowfallView()
                     }
-                }, size: 274)
-                .padding(.bottom, 16)
+                    
+                    // TextField avec label
+                    VStack(spacing: 12) {
+                        Text("Code santa")
+                            .font(.system(size: 16, weight: .bold))
+                        
+                        TextField("", text: $eventVM.codeEvent)
+                            .padding(.horizontal, 10)
+                            .frame(width: 140, height: 40)
+                            .background(.white.opacity(0.8))
+                            .cornerRadius(10)
+                            .font(.custom("Syncopate-Bold", size: 20))
+                            .multilineTextAlignment(.center)
+                    }
+                    
+                    Spacer()
+                    
+                    // Bouton
+                    ButtonParticipantCellView(title: "Rejoindre", function: {
+                        if !eventVM.codeEvent.isEmpty {
+                            Task {
+                                navigationVM.isLoading = true
+                                defer { navigationVM.isLoading = false }
+                                await eventVM.joinEvent(email: userVM.email, code: eventVM.codeEvent)
+                                eventVM.codeEvent = ""
+                            }
+                        } else {
+                            showAlertEmptyCode = true
+                        }
+                    }, size: 274)
+                    .padding(.bottom, 16)
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 20)
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

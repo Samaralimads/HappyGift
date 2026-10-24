@@ -16,6 +16,8 @@ struct ContentView: View {
     @State private var authViewModel: AuthViewModel
     @State private var userViewModel: UserViewModel
     
+    @State private var isAppPaused = true
+    
     init() {
         let navigationVM = NavigationViewModel()
         self._navigationViewModel = State(initialValue: navigationVM)
@@ -47,58 +49,71 @@ struct ContentView: View {
     
     var body: some View {
         ZStack {
-            NavigationStack(path: $navigationViewModel.path) {
-                
-                Group {
-                    if authViewModel.isAuthenticated {
-                        LandingScreenView()
-                    } else if authViewModel.showLanding {
-                        LandingPage()
-
-                    } else if authViewModel.showLogin {
-                        LoginPage()
-
-                    } else if authViewModel.showSignIn {
-                        SignInPage()
-                    }
-                }
-                .navigationDestination(for: AppRoute.self) { route in
-                    
-                    switch route {
-                    case .landing:
-                        LandingScreenView()
-                    case .createEvent:
-                        CreateSanta(eventViewModel: eventViewModel)
-                    case .recapEvent:
-                        RecapEvent()
-                    case .detailEvent (let event) :
-                        DetailEvent(event: event)
-                    case .listEvent:
-                        EventList(eventViewModel: eventViewModel)
-                    case .joinEvent:
-                        EventJoinView()
-                    case .participantList:
-                        ParticipantListView()
-                    case .enveloppeView (let letter):
-                        EnveloppeView(letter: letter)
-                    case .letterView (let letter):
-                        LetterView(letter: letter)
-                    case .writeLetter (let event) :
-                        WriteLetterView(event : event)
-                    case .mailbox:
-                        mailbox3View()
-                    case let .tirageView(event, showBackButton):
-                        TirageView(showBackButton: showBackButton, event: event)
-                    }
-                }
-            }
             
-            if authViewModel.isLoading || navigationViewModel.isLoading {
-                LoadingView()
-                    .transition(.opacity)
-                    .zIndex(10)
+            if isAppPaused {
+                PausePage()
+                
+            } else {
+                
+                NavigationStack(path: $navigationViewModel.path) {
+                    
+                    Group {
+                        
+                        if authViewModel.isAuthenticated {
+                            LandingScreenView()
+                        } else if authViewModel.showLanding {
+                            
+                            ZStack {
+                                PausePage()
+                                LandingPage()
+                            }
+                            
+                        } else if authViewModel.showLogin {
+                            LoginPage()
+                            
+                        } else if authViewModel.showSignIn {
+                            SignInPage()
+                        }
+                    }
+                }
+                    .navigationDestination(for: AppRoute.self) { route in
+                        
+                        switch route {
+                        case .landing:
+                            LandingScreenView()
+                        case .createEvent:
+                            CreateSanta(eventViewModel: eventViewModel)
+                        case .recapEvent:
+                            RecapEvent()
+                        case .detailEvent (let event) :
+                            DetailEvent(event: event)
+                        case .listEvent:
+                            EventList(eventViewModel: eventViewModel)
+                        case .joinEvent:
+                            EventJoinView()
+                        case .participantList:
+                            ParticipantListView()
+                        case .enveloppeView (let letter):
+                            EnveloppeView(letter: letter)
+                        case .letterView (let letter):
+                            LetterView(letter: letter)
+                        case .writeLetter (let event) :
+                            WriteLetterView(event : event)
+                        case .mailbox:
+                            mailbox3View()
+                        case let .tirageView(event, showBackButton):
+                            TirageView(showBackButton: showBackButton, event: event)
+                        }
+                    }
+                }
+                
+                if authViewModel.isLoading || navigationViewModel.isLoading {
+                    LoadingView()
+                        .transition(.opacity)
+                        .zIndex(10)
+                }
             }
-        }
+        
         .environment(navigationViewModel)
         .environment(landingViewModel)
         .environment(eventViewModel)

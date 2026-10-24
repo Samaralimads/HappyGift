@@ -247,5 +247,4 @@ class AuthViewModel {
     func clearError() {
         errorMessage = nil
     }
-    
 }
