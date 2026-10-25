@@ -10,7 +10,11 @@ import Foundation
 final class APIService {
     static let shared = APIService()
     
+    #if DEBUG
+    let baseURL : String = "http://SIM-FMU240079.local:8080"
+    #else
     let baseURL : String = "https://api.mysecretsanta.cloud"
+    #endif
     
     private init() {}
 
@@ -66,10 +70,14 @@ final class APIService {
         case 401 :
             throw URLError(.userAuthenticationRequired)
         default:
+            // Le back renvoie {"error": true, "reason": "..."} : on remonte son message pour l'afficher
+            if let errorResponse = try? JSONDecoder().decode(APIErrorResponse.self, from: data) {
+                throw APIError(message: errorResponse.reason)
+            }
             throw URLError(.badServerResponse)
         }
     }
-    
+
     //METHODE DELETE
     func delete(_ endpoint: String, token: String? = nil) async throws {
         guard let url = URL(string : baseURL + endpoint) else {
@@ -128,4 +136,12 @@ extension JSONEncoder {
         encoder.dateEncodingStrategy = .iso8601
         return encoder
     }
+}
+
+struct APIError: Error {
+    let message: String
+}
+
+struct APIErrorResponse: Decodable {
+    let reason: String
 }

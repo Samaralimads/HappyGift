@@ -16,6 +16,7 @@ struct RecapEvent: View {
     @State var showAlert: Bool = false
     @State var showAlertParticipant: Bool = false
     @State var showAlertMinParticipants: Bool = false
+    @State var showAlertCreation: Bool = false
 
     var body: some View {
         GeometryReader { geo in
@@ -98,6 +99,12 @@ struct RecapEvent: View {
                                 defer { navigationVM.isLoading = false }
 
                                 await eventVM.createEvent()
+
+                                // Sans ce test, on partait sur le tirage de l'event précédent
+                                if eventVM.createEventError != nil {
+                                    showAlertCreation = true
+                                    return
+                                }
                                 eventVM.hasJustCreatedEvent = true
 
                                 if let event = eventVM.currentEvent {
@@ -134,6 +141,11 @@ struct RecapEvent: View {
             Button("OK", role: .cancel) {}
         } message: {
             Text("Ajoutez votre mail dans la liste des participants")
+        }
+        .alert("Création impossible", isPresented: $showAlertCreation) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(eventVM.createEventError ?? "")
         }
     }
 }

@@ -29,8 +29,10 @@ class EventViewModel {
     var iconSelected: String? = nil
     var participants : [ParticipantCreateDTO] = []
     var hasJustCreatedEvent: Bool = false
-    
+    var createEventError: String? = nil
+
     func createEvent() async {
+        createEventError = nil
         let newEvent  = EventCreateDTO(
             nom: nomEvent,
             description: descriptionEvent,
@@ -49,7 +51,10 @@ class EventViewModel {
             resetFormEvent()
             showName = false
             print("event créé, tirage effectué en back")
-        }catch{
+        } catch let error as APIError {
+            createEventError = error.message
+        } catch {
+            createEventError = "La création a échoué. Vérifie ta connexion et réessaie."
             print("erreur dans la creation de l'event : \(error)")
         }
     }
